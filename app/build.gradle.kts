@@ -21,7 +21,7 @@ android {
     defaultConfig {
         applicationId = "com.stli.weather_forecast"
         minSdk = 26
-        targetSdk = 36
+        targetSdk = 37
         versionCode = 1
         versionName = "1.0"
 
