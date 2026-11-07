@@ -1,0 +1,12 @@
+naming:
+  FunctionNaming:
+    ignoreAnnotated:
+      - 'Composable'
+  PackageNaming:
+    # The package com.stli.weather_forecast matches applicationId/namespace and stays as is.
+    active: false
+
+style:
+  MagicNumber:
+    # Color definitions such as Color(0xFFD0BCFF) are property declarations.
+    ignorePropertyDeclaration: true
