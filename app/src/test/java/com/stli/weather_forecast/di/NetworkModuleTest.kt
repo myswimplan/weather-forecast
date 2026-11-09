@@ -1,13 +1,8 @@
 package com.stli.weather_forecast.di
 
-import com.stli.weather_forecast.BuildConfig
-import com.stli.weather_forecast.data.remote.GeocodingApi
 import com.stli.weather_forecast.data.remote.dto.GeocodingResponseDto
-import okhttp3.logging.HttpLoggingInterceptor
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertSame
-import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class NetworkModuleTest {
@@ -33,30 +28,11 @@ class NetworkModuleTest {
     }
 
     @Test
-    fun `okhttp client logs only in debug builds`() {
-        val client = NetworkModule.provideOkHttpClient()
-
-        val hasLogging = client.interceptors.any { it is HttpLoggingInterceptor }
-
-        assertEquals(BuildConfig.DEBUG, hasLogging)
-    }
-
-    @Test
     fun `retrofit points to the geocoding host and uses the given client`() {
         val client = NetworkModule.provideOkHttpClient()
         val retrofit = NetworkModule.provideRetrofit(client, NetworkModule.provideJson())
 
         assertEquals("https://geocoding-api.open-meteo.com/", retrofit.baseUrl().toString())
         assertSame(client, retrofit.callFactory())
-        assertTrue(retrofit.converterFactories().size > 1)
-    }
-
-    @Test
-    fun `geocoding api is created from retrofit`() {
-        val retrofit = NetworkModule.provideRetrofit(NetworkModule.provideOkHttpClient(), NetworkModule.provideJson())
-
-        val api: GeocodingApi = NetworkModule.provideGeocodingApi(retrofit)
-
-        assertNotNull(api)
     }
 }

@@ -70,7 +70,7 @@ class GeocodingRepositoryTest {
     @Test
     fun `search returns server error on http 500`() = runTest {
         server.enqueue(MockResponse().setResponseCode(500))
-        val result = repository.search("")
+        val result = repository.search("Berlin")
         check(result is AppResult.Failure) { "Expected Failure but was $result" }
         assertEquals(AppError.Server(500), result.error)
     }
@@ -122,6 +122,21 @@ class GeocodingRepositoryTest {
         assertTrue(job.isCancelled)
         // Wuerde das Repository die Cancellation schlucken, stuende hier ein Failure(Unknown).
         assertNull(result)
+    }
+
+    @Test
+    fun `search returns empty list for a blank query without a request`() = runTest {
+        val result = repository.search("   ")
+        check(result is AppResult.Success) { "Expected Success but was $result" }
+        assertTrue(result.data.isEmpty())
+        assertEquals(0, server.requestCount)
+    }
+
+    @Test
+    fun `search trims the query before sending it`() = runTest {
+        server.enqueue(MockResponse().setBody(readFixture("geocoding_no_results.json")))
+        repository.search("  Berlin  ")
+        assertEquals("Berlin", server.takeRequest().requestUrl?.queryParameter("name"))
     }
 
     private fun readFixture(name: String): String {

@@ -17,7 +17,12 @@ class GeocodingRepositoryImpl
 constructor(
     private val api: GeocodingApi,
 ) : GeocodingRepository {
-    override suspend fun search(query: String): AppResult<List<City>> = try {
+    override suspend fun search(query: String): AppResult<List<City>> {
+        val trimmed = query.trim()
+        return if (trimmed.isEmpty()) AppResult.Success(emptyList()) else fetchCities(trimmed)
+    }
+
+    private suspend fun fetchCities(query: String): AppResult<List<City>> = try {
         AppResult.Success(api.search(query, language = Locale.getDefault().language).toCityList())
     } catch (e: CancellationException) {
         throw e
