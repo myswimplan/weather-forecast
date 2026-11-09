@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # Lädt den Quellcode des Repositories auf den Runner.
+      - name: Repository auschecken
+        uses: actions/checkout@v7
+
+      # Installiert JDK 21, das auch der Gradle-Daemon dieses Projekts verlangt.
+      - name: JDK 21 einrichten
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 21
+
+      # Richtet Gradle ein und cached Abhängigkeiten und Build-Ergebnisse zwischen den Läufen.
+      - name: Gradle einrichten (mit Caching)
+        uses: gradle/actions/setup-gradle@v6
+
+      # Prüft Code-Formatierung (Spotless/ktlint) und statische Analyse (detekt).
+      - name: Spotless und detekt prüfen
+        run: ./gradlew spotlessCheck detekt
+
+      # Führt die Android Lint-Prüfung für die Debug-Variante aus.
+      - name: Lint (Debug) ausführen
+        run: ./gradlew lintDebug
+
+      # Führt alle lokalen Unit-Tests der Debug-Variante aus.
+      - name: Unit-Tests (Debug) ausführen
+        run: ./gradlew testDebugUnitTest
+
+      # Baut die Debug-APK, um sicherzustellen, dass das Projekt kompiliert und paketiert.
+      - name: Debug-APK bauen
+        run: ./gradlew assembleDebug
